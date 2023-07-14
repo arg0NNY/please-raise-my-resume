@@ -1,0 +1,20 @@
+{
+  "name": "please-raise-my-resume",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "arg0NNY",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "prebuilt-tdlib": "^0.1008014.0",
+    "tdl": "^7.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
