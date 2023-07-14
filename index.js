@@ -16,20 +16,20 @@ const App = new class {
   }
 
   async init () {
-    debug.log('Initializing...')
-    debug.log('Logging in...')
+    debug.info('Initializing...')
+    debug.await('Logging in...')
     await this.tg.login()
-    debug.log('Successfully logged in.')
+    debug.success('Logged in.')
 
-    debug.log('Searching chat...')
+    debug.await('Searching chat...')
     this.chat = await this.tg.searchPublicChat(USERNAME)
     if (!this.chat) throw new Error('Chat not found.')
-    debug.log(`Chat "${this.chat.title}" found.`)
+    debug.success(`Chat "${this.chat.title}" found.`)
 
     this.tg.on('updateNewMessage', this._handleNewMessage.bind(this))
-    debug.log('Attached listener to updateNewMessage.')
+    debug.watch('Attached listener to updateNewMessage.')
 
-    debug.log('Receiving bot menu...')
+    debug.await('Receiving bot menu...')
     this._awaitingMenu = true
     await this._sendMessage(Commands.MAIN_MENU)
   }
@@ -42,28 +42,28 @@ const App = new class {
     const { id, sender_id, chat_id, reply_markup } = data.message
     if (chat_id !== this.chat.id || sender_id?.user_id !== this.chat.type.user_id || reply_markup?._ !== 'replyMarkupShowKeyboard') return
 
-    debug.log(`Received new message ${id} with keyboard attached. Processing...`)
+    debug.info(`Received new message ${id} with keyboard attached. Processing...`)
     const commands = reply_markup.rows.flat().map(b => b.text)
 
     if (this._awaitingMenu) {
       this._awaitingMenu = false
 
-      debug.log('Bot menu received. Checking for RAISE_LONG command...')
+      debug.info(`Bot menu received. Checking for command "${Commands.RAISE_LONG}"...`)
       if (commands.includes(Commands.RAISE_LONG)) {
-        debug.log('RAISE_LONG command found. Sending...')
+        debug.info(`Command "${Commands.RAISE_LONG}" found. Sending...`)
         await this._sendMessage(Commands.RAISE_LONG)
-        debug.log('RAISE_LONG command sent.')
+        debug.success(`Command "${Commands.RAISE_LONG}" sent.`)
       }
-      else debug.error('RAISE_LONG command not found.')
+      else debug.error(`Command "${Commands.RAISE_LONG}" not found.`)
     }
     if (commands.includes(Commands.RAISE_SHORT)) {
-      debug.log('Received menu with RAISE_SHORT command. Sending...')
+      debug.info(`Received menu with command "${Commands.RAISE_SHORT}". Sending...`)
       this._sendMessage(Commands.RAISE_SHORT)
-      debug.log('RAISE_SHORT command sent.')
+      debug.success(`Command "${Commands.RAISE_SHORT}" sent.`)
     }
 
-    debug.log(`Message ${id} processed successfully.`)
+    debug.success(`Message ${id} processed successfully.`)
   }
 
 }()
-App.init().catch(debug.error)
+App.init().catch(debug.fatal)

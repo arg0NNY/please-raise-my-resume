@@ -1,18 +1,6 @@
-function formatMessage(message) {
-  return `[${new Date().toLocaleString('ru-RU').replace(', ', ' ')}] ${message}`
-}
+const { Signale } = require('signale')
 
-function log(message) {
-  if (process.env.DEBUG !== 'true') return
+const signale = new Signale({ logLevel: process.env.DEBUG === 'true' ? 'info' : 'warn' })
+signale.config({ displayTimestamp: true })
 
-  console.log(formatMessage(message))
-}
-
-function error(message) {
-  console.error(formatMessage(message))
-}
-
-module.exports = {
-  log,
-  error
-}
+module.exports = signale
