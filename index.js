@@ -13,6 +13,7 @@ const App = new class {
       verbosityLevel: 0
     })
     Object.defineProperty(this, '_awaitingMenu', debounceBoolean(5000))
+    Object.defineProperty(this, '_recentlySentMessage', debounceBoolean(30000))
   }
 
   async init () {
@@ -35,31 +36,42 @@ const App = new class {
   }
 
   _sendMessage (text) {
+    this._recentlySentMessage = true
     return this.tg.sendMessage(this.chat.id, Tg.buildSimpleTextMessageContent(text))
   }
 
   async _handleNewMessage (data) {
     const { id, sender_id, chat_id, reply_markup } = data.message
-    if (chat_id !== this.chat.id || sender_id?.user_id !== this.chat.type.user_id || reply_markup?._ !== 'replyMarkupShowKeyboard') return
+    if (chat_id !== this.chat.id || sender_id?.user_id !== this.chat.type.user_id) return
 
-    debug.info(`Received new message ${id} with keyboard attached. Processing...`)
-    const commands = reply_markup.rows.flat().map(b => b.text)
+    debug.info(`Received message ${id}.`)
 
-    if (this._awaitingMenu) {
-      this._awaitingMenu = false
+    if (reply_markup?._ === 'replyMarkupShowKeyboard') {
+      debug.info(`Message ${id} has keyboard attached. Processing...`)
+      const commands = reply_markup.rows.flat().map(b => b.text)
 
-      debug.info(`Bot menu received. Checking for command "${Commands.RAISE_LONG}"...`)
-      if (commands.includes(Commands.RAISE_LONG)) {
-        debug.info(`Command "${Commands.RAISE_LONG}" found. Sending...`)
-        await this._sendMessage(Commands.RAISE_LONG)
-        debug.success(`Command "${Commands.RAISE_LONG}" sent.`)
+      if (this._awaitingMenu) {
+        this._awaitingMenu = false
+
+        debug.info(`Bot menu received. Checking for command "${Commands.RAISE_LONG}"...`)
+        if (commands.includes(Commands.RAISE_LONG)) {
+          debug.info(`Command "${Commands.RAISE_LONG}" found. Sending...`)
+          await this._sendMessage(Commands.RAISE_LONG)
+          debug.success(`Command "${Commands.RAISE_LONG}" sent.`)
+        }
+        else debug.error(`Command "${Commands.RAISE_LONG}" not found.`)
       }
-      else debug.error(`Command "${Commands.RAISE_LONG}" not found.`)
+      if (commands.includes(Commands.RAISE_SHORT)) {
+        debug.info(`Received menu with command "${Commands.RAISE_SHORT}". Sending...`)
+        this._sendMessage(Commands.RAISE_SHORT)
+        debug.success(`Command "${Commands.RAISE_SHORT}" sent.`)
+      }
     }
-    if (commands.includes(Commands.RAISE_SHORT)) {
-      debug.info(`Received menu with command "${Commands.RAISE_SHORT}". Sending...`)
-      this._sendMessage(Commands.RAISE_SHORT)
-      debug.success(`Command "${Commands.RAISE_SHORT}" sent.`)
+
+    if (this._recentlySentMessage) {
+      debug.await(`Marking message ${id} as viewed due to recent outgoing messages...`)
+      await this.tg.viewMessages(this.chat.id, [id], { force_read: true })
+      debug.success(`Marked message ${id} as viewed.`)
     }
 
     debug.success(`Message ${id} processed successfully.`)

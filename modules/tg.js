@@ -30,8 +30,11 @@ module.exports = class Tg {
   searchPublicChat (username) {
     return this.invoke('searchPublicChat', { username })
   }
-  sendMessage (chatId, message_content, data = {}) {
-    return this.invoke('sendMessage', { chat_id: chatId, input_message_content: message_content, ...data })
+  sendMessage (chatId, messageContent, data = {}) {
+    return this.invoke('sendMessage', { chat_id: chatId, input_message_content: messageContent, ...data })
+  }
+  viewMessages (chatId, messageIds, data = {}) {
+    return this.invoke('viewMessages', { chat_id: chatId, message_ids: messageIds, ...data })
   }
 
   _handleUpdate (data) {
