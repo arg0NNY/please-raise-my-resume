@@ -105,7 +105,7 @@ const App = new class {
     if (this._recentlySentMessage) {
       debug.await(`Marking message ${id} as viewed due to recent outgoing messages...`)
       await this.tg.viewMessages(this.chat.id, [id], { force_read: true })
-      debug.success(`Marked message ${id} as viewed.`)
+      debug.success(`Message ${id} marked as viewed.`)
     }
   }
 
