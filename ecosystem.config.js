@@ -1,9 +1,7 @@
-import { name } from './package.json'
-
 module.exports = {
   apps: [
     {
-      name,
+      name: "please-raise-my-resume",
       script: "npm",
       args: "run start"
     }
