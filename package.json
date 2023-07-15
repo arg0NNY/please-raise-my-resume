@@ -1,7 +1,7 @@
 {
   "name": "please-raise-my-resume",
   "version": "1.0.0",
-  "description": "",
+  "description": "Automatically raises the resume on hh.ru using their official Telegram bot.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
